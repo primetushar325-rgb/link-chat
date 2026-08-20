@@ -1,0 +1,1 @@
+export default function AdminHome(){ return (<div><h2>Dashboard</h2><ul style={{color:'#9CA3AF'}}><li>Users: suspend/ban</li><li>Badge: manage chat header promo badge (image + link)</li><li>Conversations: audit-logged review</li><li>Reports: moderation queue</li></ul></div>); }

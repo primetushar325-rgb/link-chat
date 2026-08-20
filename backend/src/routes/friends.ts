@@ -1,0 +1,12 @@
+import { Router } from 'express';
+import { authenticate } from '../middleware/auth.js';
+import { createFileStore } from '../db/fileStore.js';
+import { ok, fail } from '../lib/response.js';
+const r=Router(); const db=createFileStore();
+r.use(authenticate);
+r.get('/', async(req,res)=>{ const u=(req as any).user; const list=await db.friends.list(u.id); res.json(ok(list)); });
+r.get('/requests', async(req,res)=>{ const u=(req as any).user; const reqs=await db.friends.requestsFor(u.id); res.json(ok(reqs)); });
+r.post('/request/:userId', async(req,res)=>{ const u=(req as any).user; const target=req.params.userId; if(target===u.id) return res.status(400).json(fail('VALIDATION','Cannot friend yourself')); const f=await db.friends.upsert(u.id,target,'pending'); res.json(ok(f)); });
+r.post('/accept/:userId', async(req,res)=>{ const u=(req as any).user; const f=await db.friends.upsert(req.params.userId, u.id,'accepted'); res.json(ok(f)); });
+r.post('/decline/:userId', async(req,res)=>{ const u=(req as any).user; const f=await db.friends.upsert(req.params.userId, u.id,'declined'); res.json(ok(f)); });
+export default r;

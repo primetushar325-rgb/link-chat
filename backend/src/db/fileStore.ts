@@ -1,0 +1,20 @@
+import fs from 'fs'; import path from 'path'; import { DbAdapter } from './adapter.js';
+const DATA_PATH=process.env.DATABASE_URL?.replace('file:','') || './data/db.json';
+const dir=path.dirname(DATA_PATH);
+type DbShape={ users:any[]; conversations:any[]; messages:any[]; stories:any[]; settings:any; friends:any[]; auditLogs:any[]; reports:any[]; };
+function ensure(){ if(!fs.existsSync(dir)) fs.mkdirSync(dir,{recursive:true}); if(!fs.existsSync(DATA_PATH)) fs.writeFileSync(DATA_PATH, JSON.stringify({users:[],conversations:[],messages:[],stories:[],settings:{badge:{imageUrl:'',linkUrl:'',enabled:false,updatedAt:new Date().toISOString()}},friends:[],auditLogs:[],reports:[]},null,2)); }
+function read():DbShape{ ensure(); return JSON.parse(fs.readFileSync(DATA_PATH,'utf-8')); }
+function write(db:DbShape){ fs.writeFileSync(DATA_PATH, JSON.stringify(db,null,2)); }
+
+export function createFileStore():DbAdapter{
+  return {
+    users:{ findByEmail:async(e)=> read().users.find(u=>u.email===e), findById:async(id)=> read().users.find(u=>u.id===id), create:async(u)=>{const db=read();db.users.push(u);write(db);return u;}, list:async()=>read().users, update:async(id,patch)=>{const db=read();const i=db.users.findIndex(u=>u.id===id); if(i>=0){db.users[i]={...db.users[i],...patch};write(db);return db.users[i];} return null;} },
+    conversations:{ listForUser:async(uid)=> read().conversations.filter(c=>c.participantIds.includes(uid)), findById:async(id)=> read().conversations.find(c=>c.id===id), create:async(c)=>{const db=read();db.conversations.push(c);write(db);return c;} },
+    messages:{ list:async(cid,cursor,limit=50)=>{let arr=read().messages.filter(m=>m.conversationId===cid && !m.deletedAt).sort((a,b)=>+new Date(a.createdAt)-+new Date(b.createdAt)); if(cursor){const idx=arr.findIndex(m=>m.id===cursor); if(idx>=0) arr=arr.slice(idx+1);} return arr.slice(-limit);}, create:async(m)=>{const db=read();db.messages.push(m);write(db);return m;}, findById:async(id)=> read().messages.find(m=>m.id===id), update:async(id,patch)=>{const db=read();const i=db.messages.findIndex(m=>m.id===id); if(i>=0){db.messages[i]={...db.messages[i],...patch};write(db);return db.messages[i];} return null;} },
+    stories:{ feedForUser:async(uid)=>{const db=read(); const now=Date.now(); const friends=db.friends.filter(f=> (f.a===uid||f.b===uid)&&f.status==='accepted').map(f=> f.a===uid? f.b: f.a); const allowed=new Set([uid,...friends]); return db.stories.filter(s=> allowed.has(s.userId) && new Date(s.expiresAt).getTime()>now);}, findById:async(id)=> read().stories.find(s=>s.id===id), create:async(s)=>{const db=read();db.stories.push(s);write(db);return s;}, addView:async(id,viewerId)=>{const db=read();const st=db.stories.find(s=>s.id===id); if(!st) return null; if(!st.views.find((v:any)=>v.userId===viewerId)) st.views.push({userId:viewerId,viewedAt:new Date().toISOString()}); write(db); return st;}, purgeExpired:async()=>{const db=read(); const before=db.stories.length; const now=Date.now(); db.stories=db.stories.filter(s=> new Date(s.expiresAt).getTime()>now); write(db); return before-db.stories.length;}},
+    settings:{ getBadge:async()=> read().settings.badge, setBadge:async(b)=>{const db=read();db.settings.badge=b;write(db);return b;}},
+    friends:{ requestsFor:async(uid)=> read().friends.filter(f=> f.b===uid && f.status==='pending'), list:async(uid)=> read().friends.filter(f=> (f.a===uid||f.b===uid)&&f.status==='accepted'), upsert:async(a,b,status)=>{const db=read();let f=db.friends.find(x=> (x.a===a&&x.b===b)||(x.a===b&&x.b===a)); if(f){f.status=status; f.updatedAt=new Date().toISOString();} else {f={id:`fr_${Date.now()}`,a,b,status,createdAt:new Date().toISOString()}; db.friends.push(f);} write(db); return f;}, find:async(a,b)=> read().friends.find(f=> (f.a===a&&f.b===b)||(f.a===b&&f.b===a))},
+    auditLogs:{ create:async(log)=>{const db=read();db.auditLogs.push(log);write(db);return log;}, list:async()=> read().auditLogs},
+    reports:{ list:async()=> read().reports, create:async(r)=>{const db=read();db.reports.push(r);write(db);return r;}}
+  };
+}

@@ -1,0 +1,16 @@
+node_modules
+.expo
+.expo-shared
+dist
+backend/data
+backend/uploads
+.env
+.env.local
+.env.*.local
+backend/.env
+backend/.env.local
+admin/.env.local
+admin/.env
+.npm
+.gitconfig
+.coverage

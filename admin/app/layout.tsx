@@ -1,0 +1,4 @@
+export const metadata={title:'LINK Admin',description:'Admin panel for LINK chat'};
+export default function RootLayout({children}:{children:React.ReactNode}){
+  return (<html lang="en"><body style={{margin:0,fontFamily:'system-ui, sans-serif',background:'#0A0A0F',color:'#fff'}}><header style={{padding:'16px 24px',borderBottom:'1px solid #1F2937',display:'flex',justifyContent:'space-between'}}><b>LINK Admin</b><nav style={{display:'flex',gap:16}}><a href="/admin" style={{color:'#A5B4FC'}}>Dashboard</a><a href="/admin/users" style={{color:'#A5B4FC'}}>Users</a><a href="/admin/badge" style={{color:'#A5B4FC'}}>Badge</a><a href="/admin/conversations" style={{color:'#A5B4FC'}}>Conversations (Audit)</a><a href="/admin/reports" style={{color:'#A5B4FC'}}>Reports</a></nav></header><main style={{padding:24}}>{children}</main></body></html>);
+}

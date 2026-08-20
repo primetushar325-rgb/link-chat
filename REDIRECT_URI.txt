@@ -1,0 +1,26 @@
+EXPO GOOGLE OAUTH — AUTHORIZED REDIRECT URIs TO ADD IN GOOGLE CLOUD CONSOLE
+
+1) Primary (Expo Go — useProxy:true):
+   https://auth.expo.io/@YOUR_EXPO_USERNAME/link-chat
+   -> Replace YOUR_EXPO_USERNAME with the username you see after `npx eas whoami` or at https://expo.dev/accounts/[you]
+   -> Example if your username is "tanvir": https://auth.expo.io/@tanvir/link-chat
+   -> This is what makeRedirectUri({ useProxy: true }) generates.
+
+2) Local web (optional, if you run `expo start --web`):
+   http://localhost:19006
+   exp://192.168.0.10:19000/--/  (Expo Go LAN — auto-handled, not required to whitelist)
+
+3) EAS Build / Standalone (no proxy, scheme "link://"):
+   link://
+   com.link.chat://  (Android package scheme — Google accepts custom schemes if you add "Android" client type)
+   For Web Client ID (615029...apps.googleusercontent.com) you ONLY need #1. Native bare builds should create separate Android/iOS OAuth clients per https://docs.expo.dev/guides/google-authentication/#adding-native-client-ids
+
+IN GOOGLE CLOUD CONSOLE:
+  APIs & Services > Credentials > Click your Web client (615029418432-...) > Authorized redirect URIs > ADD URI > Paste #1 > SAVE.
+  Wait 5 minutes for propagation.
+
+HOW TO FIND YOUR URI IN APP:
+  - Login screen now shows "Redirect: https://auth.expo.io/@.../link-chat" (debug line)
+  - Or run: npx expo config --type introspect | grep -A2 slug
+  - Or console.log(makeRedirectUri({useProxy:true}))
+
