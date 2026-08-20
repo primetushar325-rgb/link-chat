@@ -6,7 +6,7 @@ services:
     runtime: node
     rootDir: backend
     buildCommand: npm install
-    startCommand: node --loader tsx src/index.ts
+    startCommand: node --import tsx src/index.ts
     plan: free
     envVars:
       - key: NODE_ENV
