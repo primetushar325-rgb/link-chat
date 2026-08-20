@@ -16,11 +16,11 @@ import storyRoutes from './routes/stories.js';
 import adminRoutes from './routes/admin.js';
 import friendsRoutes from './routes/friends.js';
 import { ok } from './lib/response.js';
-import { createWsServer } from './ws/server.js';
+import { createWsServer, attachWsToServer } from './ws/server.js';
 
 const app=express();
 const PORT=Number(process.env.PORT||4000);
-const WS_PORT=Number(process.env.WS_PORT||4001);
+const WS_PORT=Number(process.env.WS_PORT || process.env.PORT || 4001);
 
 app.use(helmet());
 app.use(cors({origin:(process.env.CORS_ORIGIN||'*').split(','), credentials:true}));
@@ -80,5 +80,11 @@ setInterval(async()=>{ const db=createFileStore(); const n=await db.stories.purg
 
 app.use((req,res)=> res.status(404).json({success:false,error:{code:'NOT_FOUND',message:`${req.method} ${req.path} not found`}}));
 
-app.listen(PORT, '0.0.0.0', ()=> console.log(`[api] listening on :${PORT}`));
-createWsServer(WS_PORT);
+const httpServer = app.listen(PORT, '0.0.0.0', ()=> console.log(`[api] listening on :${PORT}`));
+// If WS_PORT equals PORT (single-port hosts like Render), attach the WebSocket
+// server to the same HTTP server so one public port serves both API + WS.
+if (WS_PORT === PORT) {
+  attachWsToServer(httpServer);
+} else {
+  createWsServer(WS_PORT);
+}

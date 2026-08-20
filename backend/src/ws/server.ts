@@ -1,5 +1,6 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import { verifyAccess } from '../lib/jwt.js';
+import type { Server as HttpServer } from 'http';
 type Client = { ws:WebSocket; userId:string; conversationIds:Set<string>; };
 const clients=new Set<Client>();
 
@@ -7,8 +8,21 @@ export function broadcastToConversation(conversationId:string, payload:any){
   const msg=JSON.stringify(payload);
   for(const c of clients){ if(c.conversationIds.has(conversationId)) try{ c.ws.send(msg);}catch{} }
 }
+// Attach WebSocket to an existing HTTP server (so API + WS share one public port,
+// which is required on hosts like Render that expose a single PORT).
+export function attachWsToServer(server:HttpServer){
+  const wss=new WebSocketServer({ server, path:'/ws' });
+  bindHandlers(wss);
+  console.log('[ws] attached to http server on /ws');
+  return wss;
+}
 export function createWsServer(port:number){
-  const wss=new WebSocketServer({port});
+  const wss=new WebSocketServer({ port });
+  bindHandlers(wss);
+  console.log(`[ws] listening on :${port}`);
+  return wss;
+}
+function bindHandlers(wss:WebSocketServer){
   wss.on('connection',(ws,req)=>{
     const url=new URL(req.url||'/', `http://${req.headers.host}`);
     const ticket=url.searchParams.get('ticket');
@@ -40,6 +54,4 @@ export function createWsServer(port:number){
     ws.on('close',()=> clients.delete(client));
     ws.send(JSON.stringify({type:'connected', payload:{userId}}));
   });
-  console.log(`[ws] listening on :${port}`);
-  return wss;
 }

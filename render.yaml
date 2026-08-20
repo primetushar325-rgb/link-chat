@@ -11,10 +11,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 10000
-      - key: WS_PORT
-        value: 10001
+      # Render auto-injects PORT. WS_PORT defaults to PORT in code so WebSocket
+      # is served on the same single public port.
       - key: JWT_SECRET
         generateValue: true
       - key: JWT_REFRESH_SECRET
