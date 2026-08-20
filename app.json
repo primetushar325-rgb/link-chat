@@ -35,21 +35,30 @@
     },
     "plugins": [
       "expo-router",
-      "expo-secure-store",
       [
         "expo-image-picker",
-        { "photosPermission": "LINK needs access to your photos to share media." }
+        {
+          "photosPermission": "LINK needs access to your photos to share media."
+        }
       ],
       [
         "expo-notifications",
-        { "icon": "./assets/images/icon.png", "color": "#6C5CE7" }
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#6C5CE7"
+        }
       ]
     ],
-    "experiments": { "typedRoutes": true },
+    "experiments": {
+      "typedRoutes": true
+    },
     "extra": {
-      "eas": { "projectId": "REPLACE_WITH_YOUR_EAS_PROJECT_ID" },
+      "eas": {
+        "projectId": "0742b5b3-4fbc-4f2e-88ca-49f37997ccea"
+      },
       "apiUrl": "https://api.link.example.com",
       "wsUrl": "wss://ws.link.example.com"
-    }
+    },
+    "owner": "primetushar325-rgbs-team"
   }
 }
