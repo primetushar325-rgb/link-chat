@@ -66,7 +66,7 @@ async function seed(){
   const email=process.env.ADMIN_SEED_EMAIL||'admin@link.app';
   const existing=await db.users.findByEmail(email);
   if(!existing){
-    const bcrypt=await import('bcryptjs');
+    const bcrypt=(await import('bcryptjs')).default;
     const hash=await bcrypt.hash(process.env.ADMIN_SEED_PASSWORD||'Admin123!',10);
     const {v4:uuid}=await import('uuid');
     await db.users.create({id:uuid(), name:'Admin', email, passwordHash:hash, role:'admin', status:'active', avatarUrl:'', createdAt:new Date().toISOString()});

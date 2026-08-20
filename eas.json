@@ -8,8 +8,7 @@
     "preview": {
       "distribution": "internal",
       "android": { "buildType": "apk" },
-      "channel": "preview",
-      "env": { "EXPO_PUBLIC_API_URL": "https://api.link.example.com" }
+      "channel": "preview"
     },
     "production": {
       "autoIncrement": true,

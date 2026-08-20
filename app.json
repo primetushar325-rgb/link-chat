@@ -55,6 +55,13 @@
             "minSdkVersion": 24
           }
         }
+      ],
+      [
+        "@config-plugins/react-native-webrtc",
+        {
+          "cameraPermission": "LINK needs camera access to make video calls.",
+          "microphonePermission": "LINK needs microphone access to make voice and video calls."
+        }
       ]
     ],
     "experiments": {

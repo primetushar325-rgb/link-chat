@@ -1,0 +1,35 @@
+# Render Blueprint for LINK Backend API + WebSocket
+# One-click deploy: connect this GitHub repo to Render, it auto-detects this file.
+services:
+  - type: web
+    name: link-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node --loader tsx src/index.ts
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: WS_PORT
+        value: 10001
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        value: "*"
+      - key: DATABASE_URL
+        value: file:./data/db.json
+      - key: ADMIN_SEED_EMAIL
+        value: admin@link.app
+      - key: ADMIN_SEED_PASSWORD
+        value: Admin123!
+      - key: CLOUDINARY_CLOUD_NAME
+        value: xku0l7uc
+      - key: CLOUDINARY_API_KEY
+        value: 725198571393975
+      - key: CLOUDINARY_API_SECRET
+        value: zDIczZZd_ySyVSXVQPvtQcLao7w
