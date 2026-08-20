@@ -8,7 +8,11 @@
     "preview": {
       "distribution": "internal",
       "android": { "buildType": "apk" },
-      "channel": "preview"
+      "channel": "preview",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://link-backend-u5a3.onrender.com",
+        "EXPO_PUBLIC_WS_URL": "wss://link-backend-u5a3.onrender.com/ws"
+      }
     },
     "production": {
       "autoIncrement": true,
